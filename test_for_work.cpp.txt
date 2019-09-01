@@ -11,7 +11,7 @@ using namespace std;
 using queue_t = queue<int>;
 using map_t = map<int, vector<int>>;
 using vector_t = vector<int>;
-// ½«×Ö·û´®×ª»»ÎªÊı×ÖµÄº¯Êı
+// å°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºæ•°å­—çš„å‡½æ•°
 map_t str_to_int(int data_flag[], vector<string> str)
 {
 	int flag = 0;
@@ -42,7 +42,7 @@ map_t str_to_int(int data_flag[], vector<string> str)
 		vector_t::iterator it, it1;
 		for (auto it = ++data_result.begin(); it != data_result.end();)
 		{
-			auto it1 = find(data_result.begin(), it, *it);    //Èôµ±Ç°Î»ÖÃÖ®Ç°´æÔÚÖØ¸´ÔªËØ£¬É¾³ıµ±Ç°ÔªËØ,erase·µ»Øµ±Ç°ÔªËØµÄÏÂÒ»¸öÔªËØÖ¸Õë
+			auto it1 = find(data_result.begin(), it, *it);    //è‹¥å½“å‰ä½ç½®ä¹‹å‰å­˜åœ¨é‡å¤å…ƒç´ ï¼Œåˆ é™¤å½“å‰å…ƒç´ ,eraseè¿”å›å½“å‰å…ƒç´ çš„ä¸‹ä¸€ä¸ªå…ƒç´ æŒ‡é’ˆ
 			if (it1 != it)
 				it = data_result.erase(it);
 			else
@@ -65,9 +65,9 @@ vector_t wide_first(int start_url, map_t dest, vector_t data_trace)
 	result_url.push(start_url);
 	int data_cmp[100] = { 0 };
 	data_cmp[start_url] = 1;
-	// ²ãĞò±éÀú
+	// å±‚åºéå†
 	auto it = dest.find(start_url);
-	if (it != dest.end())  //Èç¹ûÕÒµ½£¬ÏÈ¸ù¾İË³Ğò±éÀúÆğÊ¼½ÚµãµÄ½á¹û
+	if (it != dest.end())  //å¦‚æœæ‰¾åˆ°ï¼Œå…ˆæ ¹æ®é¡ºåºéå†èµ·å§‹èŠ‚ç‚¹çš„ç»“æœ
 	{
 		for (auto i : it->second)
 		{
@@ -78,30 +78,30 @@ vector_t wide_first(int start_url, map_t dest, vector_t data_trace)
 			}
 		}
 	}
-	//Ö®ºó£¬´ÓµÚ¶ş¸ö½Úµã¿ªÊ¼±éÀú²¢×·¼Óµ½½á¹ûµÄºóÃæ
+	//ä¹‹åï¼Œä»ç¬¬äºŒä¸ªèŠ‚ç‚¹å¼€å§‹éå†å¹¶è¿½åŠ åˆ°ç»“æœçš„åé¢
 	data_trace = update_queue(result_url, dest, data_trace, data_cmp);
 	return data_trace;
 }
 
 vector_t update_queue(queue_t result_url, map_t dest, vector_t data_trace, int data_cmp[])
 {
-	while (!result_url.empty())  //Ñ­»·Ö±µ½¶ÓÁĞÎª¿Õ
+	while (!result_url.empty())  //å¾ªç¯ç›´åˆ°é˜Ÿåˆ—ä¸ºç©º
 	{
-		int temp = result_url.front();  //ÏÈ½«µÚÒ»¸öpop³öÈ¥
+		int temp = result_url.front();  //å…ˆå°†ç¬¬ä¸€ä¸ªpopå‡ºå»
 		data_trace.push_back(temp);
 		result_url.pop();
-		//´ÓµÚ¶şÎ»¿ªÊ¼ÕÒ
+		//ä»ç¬¬äºŒä½å¼€å§‹æ‰¾
 		if (result_url.empty())
 		{
 			break;
 		}
-		auto iter = dest.find(result_url.front());  //Ê×ÏÈ¿´¿´¶ÓÊ×µÄÖµÔÚ²»ÔÚmapÀïÃæ
-		if (iter != dest.end())  // Èç¹ûÄÜÕÒµ½
+		auto iter = dest.find(result_url.front());  //é¦–å…ˆçœ‹çœ‹é˜Ÿé¦–çš„å€¼åœ¨ä¸åœ¨mapé‡Œé¢
+		if (iter != dest.end())  // å¦‚æœèƒ½æ‰¾åˆ°
 		{
-			for (auto i : iter->second)   //±éÀúvector
+			for (auto i : iter->second)   //éå†vector
 			{
-				auto ret = find(data_trace.begin(), data_trace.end(), i);   //Ñ°ÕÒµ±Ç°ÖµÊÇ·ñÒÑ¾­±»pop¹ı
-				if (ret == data_trace.end() && i != 0)    //Ã»ÓĞpop¹ıÇÒÖµ²»Îª0²ÅÌí¼Ó
+				auto ret = find(data_trace.begin(), data_trace.end(), i);   //å¯»æ‰¾å½“å‰å€¼æ˜¯å¦å·²ç»è¢«popè¿‡
+				if (ret == data_trace.end() && i != 0)    //æ²¡æœ‰popè¿‡ä¸”å€¼ä¸ä¸º0æ‰æ·»åŠ 
 				{
 					if (data_cmp[i] == 0)
 					{
@@ -122,10 +122,10 @@ vector_t optimal_first(int start_url, map_t dest,vector_t data_trace)
 	int next_url = 0;
 	int data_cmp[100] = { 0 };
 	queue_t result_url;
-	//ÏÈ´æstart_url
+	//å…ˆå­˜start_url
 	data_trace.push_back(start_url);
 	data_cmp[start_url] = 1;
-	next_url = find_next_url(start_url,dest,data_cmp);  //ÕÒÏÂÒ»¸öurl×÷Îªµ±Ç°µÄ¿ª¶Ë
+	next_url = find_next_url(start_url,dest,data_cmp);  //æ‰¾ä¸‹ä¸€ä¸ªurlä½œä¸ºå½“å‰çš„å¼€ç«¯
 	data_cmp[next_url] = 1;
 	result_url.push(next_url);
 	while (!result_url.empty())
@@ -151,9 +151,9 @@ int find_next_url(int now_url, map_t dest, int data_cmp[])
 {
 	int min_dis = 65535;
 	int next_url = 0;
-	//¸ù¾İÆğÊ¼Ò³ÕÒµ½µ±Ç°×î½üµÄÃ»ÓĞ·ÃÎÊ¹ıµÄÍøÒ³
+	//æ ¹æ®èµ·å§‹é¡µæ‰¾åˆ°å½“å‰æœ€è¿‘çš„æ²¡æœ‰è®¿é—®è¿‡çš„ç½‘é¡µ
 	auto iter = dest.find(now_url);
-	if (iter != dest.end())   //Èç¹ûÕÒµ½£¬Ôò¼ÆËã¾àÀë
+	if (iter != dest.end())   //å¦‚æœæ‰¾åˆ°ï¼Œåˆ™è®¡ç®—è·ç¦»
 	{
 		for (auto i : iter->second)
 		{
