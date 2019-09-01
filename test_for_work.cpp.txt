@@ -1,0 +1,244 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <queue>
+#include <cmath>
+
+
+using namespace std;
+
+using queue_t = queue<int>;
+using map_t = map<int, vector<int>>;
+using vector_t = vector<int>;
+// 将字符串转换为数字的函数
+map_t str_to_int(int data_flag[], vector<string> str)
+{
+	int flag = 0;
+	map_t result_data;
+	vector_t data_result;
+	for (auto i : str)
+	{
+		int num = 0;
+		for (int j = 0; j <= i.length(); j++)
+		{
+			if (i[j] >= '0'&&i[j] <= '9')
+			{
+				num = num * 10 + i[j] - '0';
+			}
+			else
+			{
+				if (num != 0)
+				{
+					if (data_flag[flag] != num)
+					{
+						data_result.push_back(num);
+					}
+				}
+				num = 0;
+			}
+		}
+		data_result.push_back(0);
+		vector_t::iterator it, it1;
+		for (auto it = ++data_result.begin(); it != data_result.end();)
+		{
+			auto it1 = find(data_result.begin(), it, *it);    //若当前位置之前存在重复元素，删除当前元素,erase返回当前元素的下一个元素指针
+			if (it1 != it)
+				it = data_result.erase(it);
+			else
+				it++;
+		}
+		result_data[data_flag[flag]] = data_result;
+		data_result.clear();
+		flag++;
+	}
+	return result_data;
+}
+
+vector_t update_queue(queue_t result_url, map_t dest, vector_t data_trace, int data_cmp[]);
+
+vector_t wide_first(int start_url, map_t dest, vector_t data_trace)
+{
+	int count = 0;
+	data_trace.clear();
+	queue_t result_url;
+	result_url.push(start_url);
+	int data_cmp[100] = { 0 };
+	data_cmp[start_url] = 1;
+	// 层序遍历
+	auto it = dest.find(start_url);
+	if (it != dest.end())  //如果找到，先根据顺序遍历起始节点的结果
+	{
+		for (auto i : it->second)
+		{
+			if (i != 0)
+			{
+				result_url.push(i);
+				data_cmp[i] = 1;
+			}
+		}
+	}
+	//之后，从第二个节点开始遍历并追加到结果的后面
+	data_trace = update_queue(result_url, dest, data_trace, data_cmp);
+	return data_trace;
+}
+
+vector_t update_queue(queue_t result_url, map_t dest, vector_t data_trace, int data_cmp[])
+{
+	while (!result_url.empty())  //循环直到队列为空
+	{
+		int temp = result_url.front();  //先将第一个pop出去
+		data_trace.push_back(temp);
+		result_url.pop();
+		//从第二位开始找
+		if (result_url.empty())
+		{
+			break;
+		}
+		auto iter = dest.find(result_url.front());  //首先看看队首的值在不在map里面
+		if (iter != dest.end())  // 如果能找到
+		{
+			for (auto i : iter->second)   //遍历vector
+			{
+				auto ret = find(data_trace.begin(), data_trace.end(), i);   //寻找当前值是否已经被pop过
+				if (ret == data_trace.end() && i != 0)    //没有pop过且值不为0才添加
+				{
+					if (data_cmp[i] == 0)
+					{
+						result_url.push(i);
+						data_cmp[i] = 1;
+					}
+				}
+			}
+		}
+	}
+	return data_trace;
+}
+
+int find_next_url(int now_url, map_t dest, int data_cmp[]);
+vector_t optimal_first(int start_url, map_t dest,vector_t data_trace)
+{
+	int min_dis = 65535;
+	int next_url = 0;
+	int data_cmp[100] = { 0 };
+	queue_t result_url;
+	//先存start_url
+	data_trace.push_back(start_url);
+	data_cmp[start_url] = 1;
+	next_url = find_next_url(start_url,dest,data_cmp);  //找下一个url作为当前的开端
+	data_cmp[next_url] = 1;
+	result_url.push(next_url);
+	while (!result_url.empty())
+	{
+		next_url = find_next_url(result_url.front(), dest, data_cmp);
+		if (next_url != 0) {
+			result_url.push(next_url);
+			auto temp = result_url.front();
+			data_trace.push_back(temp);
+			result_url.pop();
+		}
+		else
+		{
+			auto temp = result_url.front();
+			data_trace.push_back(temp);
+			result_url.pop();
+		}
+	}
+	return data_trace;
+}
+
+int find_next_url(int now_url, map_t dest, int data_cmp[])
+{
+	int min_dis = 65535;
+	int next_url = 0;
+	//根据起始页找到当前最近的没有访问过的网页
+	auto iter = dest.find(now_url);
+	if (iter != dest.end())   //如果找到，则计算距离
+	{
+		for (auto i : iter->second)
+		{
+			if (i != 0 && data_cmp[i] == 0)
+			{
+				auto temp_dis = abs(now_url - i);
+				if (temp_dis < min_dis)
+				{
+					next_url = i;
+					min_dis = temp_dis;
+				}
+			}
+		}
+	}
+	return next_url;
+}
+int main()
+{
+	string str;
+	vector<string> str_data;
+	int url_flag[65535] = { 0 };
+	int mark_flag[65535];
+	int start_url;
+	int strategy_way;
+	cin >> start_url >> strategy_way;
+	int N;
+	cin >> N;
+	for (int i = 0; i < N; i++)
+	{
+		int temp;
+		cin >> temp;
+		mark_flag[i] = temp;
+		url_flag[temp] = 1;
+		getline(cin, str);
+		str_data.push_back(str);
+	}
+	map_t result_data;
+	result_data = str_to_int(mark_flag,str_data);
+	vector_t result;
+
+	int count = 0;
+	if (strategy_way == 1)
+	{
+		if (url_flag[start_url] == 0)
+		{
+			cout << "-1" << endl;
+		}
+		else
+		{
+			result = wide_first(start_url, result_data, result);
+			count = result.size();
+			for (auto i : result)
+			{
+				if (url_flag[i] == 0)
+				{
+					count -= 1;
+				}
+			}
+			cout << count << endl;
+		}
+	}
+	else if(strategy_way == 2)
+	{
+		if (url_flag[start_url] == 0)
+		{
+			cout << "-1" << endl;
+		}
+		else
+		{
+			result = optimal_first(start_url, result_data, result);
+			count = result.size();
+			for (auto i : result)
+			{
+				if (url_flag[i] == 0)
+				{
+					count -= 1;
+				}
+			}
+			cout << count << endl;
+		}
+	}
+	else
+	{
+		cout << "-1" << endl;
+	}
+	system("pause");
+	return 0;
+}
