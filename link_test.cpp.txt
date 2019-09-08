@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_LEN 1000
+struct list
+{
+	int num;
+	struct list *next;
+};
+
+typedef struct list LinkedList;
+
+/*新节点初始化*/
+LinkedList *initNode(int num)
+{
+	LinkedList *p = NULL;
+	p = (LinkedList*)malloc(sizeof(LinkedList));
+	p->num = num;
+	p->next = NULL;
+	return p;
+}
+
+/*链表初始化*/
+LinkedList *initList(int nums[], int len)
+{
+	if (len == 0)
+	{
+		return NULL;
+	}
+	LinkedList *q = initNode(nums[0]);
+	LinkedList *p = q;
+	for (int i = 1; i < len; i++)
+	{
+		p->next = initNode(nums[i]);
+		p = p->next;
+	}
+	return q;
+}
+
+/*新增节点*/
+LinkedList* NodeAdd(LinkedList *p, int loc, int value)
+{
+	if (p == NULL)
+	{
+		return initNode(value);
+	}
+	LinkedList *q = p;
+	for (int i = 0; i < loc - 1; i++)
+	{
+		q = q->next;
+	}
+	LinkedList *k = initNode(value);
+	k->next = q->next;
+	q->next = k;
+	return p;
+}
+
+/*删除一个节点*/
+LinkedList *NodeDel(LinkedList *p, int loc)
+{
+	if (p == NULL)
+	{
+		return NULL;
+	}
+	LinkedList *q = p;
+	if (loc == 1) {
+		q = q->next;
+		return q;
+	}
+	loc = loc - 2;
+	while (q->next != NULL)
+	{
+		if (loc == 0) {
+			q->next = q->next->next;
+			break;
+		}
+		loc--;
+		q = q->next;
+	}
+	return q;
+}
+
+/*打印链表元素*/
+void display(LinkedList *p)
+{
+	if (p == NULL)
+	{
+		printf(" ");
+	}
+	else
+	{
+		while (p->next != NULL)
+		{
+			printf("%d ", p->num);
+			p = p->next;
+		}
+		printf("%d\n", p->num);
+	}
+}
+
+int main()
+{
+	int list_num, num_todo;
+	int i, j;
+	int source_list[MAX_LEN];
+	int count = 0;
+	scanf_s("%d %d", &list_num, &num_todo);
+	for (i = 0; i < list_num; i++) {
+		scanf_s("%d", &source_list[i]);
+	}
+	int list_tmp[MAX_LEN][3] = { 0 };
+	for (i = 0; i < num_todo; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			scanf_s("%d", &list_tmp[i][j]);
+			if (list_tmp[i][0] == 2 && j == 1) {
+				break;
+			}
+		}
+	}
+	LinkedList *p = initList(source_list, list_num);
+	for (i = 0; i < num_todo; i++) {
+		if (list_tmp[i][0] == 1) {
+			p = NodeAdd(p, list_tmp[i][1], list_tmp[i][2]);
+		}
+		else
+		{
+			p = NodeDel(p, list_tmp[i][1]);
+		}
+	}
+	display(p);
+	system("pause");
+	return 0;
+}
